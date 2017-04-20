@@ -1,0 +1,14 @@
+{
+	"id": "{380797D6-B43A-4184-979A-BF5D121A4073}",
+	"name": "MiFlora",
+	"type": 3,
+	"vendor": "KH-Solutions",
+	"aliases": 
+	[
+		"MiFlora"
+	],
+	"parentRequirements": [],
+	"childRequirements": [],
+	"implemented": [],
+	"prefix": "MiFlora"
+}

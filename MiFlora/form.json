@@ -1,0 +1,38 @@
+{
+	"elements":
+	[
+		{
+			"type": "List",
+			"name": "mifloraHubs",
+			"caption": "MiFlora Hubs",
+			"rowCount": 5,
+			"add": true,
+			"delete": true,
+			"sort": {
+				"column": "name",
+				"direction": "ascending"
+			},
+			"columns": [{
+				"label": "IP-Address/Host",
+				"name": "hubIP", 
+				"width": "150px",
+				"add": "127.0.0.1",
+				"edit": {
+							"type": "ValidationTextBox"
+						}
+			}, {
+				"label": "Name",
+				"name": "name",
+				"width": "auto",
+				"add": "Neuer Hub",
+				"edit": {
+							"type": "ValidationTextBox"
+						}
+			}
+			]
+		},
+		{ "name": "UpdateIntervall",     "type": "IntervalBox" ,  "caption": "Minuten" },
+		{ "name": "Debug",         "type": "CheckBox",            "caption": "Debug" },
+
+	]	
+}
