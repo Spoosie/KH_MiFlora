@@ -91,16 +91,16 @@ class MiFlora extends IPSModule
 			$flowerLog = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $flowerLog);
 
 			// Jede Zeile ein Sensor
-			$sensorArray = explode("\n",$flowerLog);
+			$flowerArray = explode("\n",$flowerLog);
 
 			// Das Skript könnte noch laufen. Es muss anständig abgeschlossen sein!
-			if ($sensorArray[sizeof($sensorArray)-2] != "DONE!")
+			if ($flowerArray[sizeof($flowerArray)-2] != "DONE!")
 			{
 				IPS_LogMessage($this->moduleName,"MiFlora log (".$mifloraHub->name.") incomplete!");
 				continue;
 			}
 			
-			foreach($sensorArray as $sensor)
+			foreach($flowerArray as $sensor)
 			{
 				// (18:30:03 20-04-2017) Mac=C4:7C:8D:61:67:9C Name=Flower care Fw=2.9.2 Temp=20.50 Moist=4 Light=126 Cond=0 Bat=100
 				preg_match('/\((.*)\) Mac=(.*) Name=(.*) Fw=(.*) Temp=(.*) Moist=(.*) Light=(.*) Cond=(.*) Bat=(.*)/',$sensor,$result);
@@ -118,20 +118,36 @@ class MiFlora extends IPSModule
 				
 				$uuid = str_replace(":","",$result[2]);
 				
-				$catID = $this->CreateCategory($result[3]." (Bitte umbenennen!)", $uuid , $this->InstanceID);
-				$this->CreateVariable("Letzte Meldung", 3, $result[1], $uuid."_lastMessage", $catID );
-				$this->CreateVariable("UUID", 3, $result[2], $uuid."_uuid", $catID );
-				$this->CreateVariable("Firmware", 3, $result[4], $uuid."_firmware", $catID);
-				$this->CreateVariable("Temperatur", 2, $result[5], $uuid."_temperature", $catID ,"~Temperature.Room");
-				$this->CreateVariable("Bodenfeuchtigkeit", 2, $result[6], $uuid."_soilMoisture", $catID ,"~Humidity.F");
-				$this->CreateVariable("Beleuchtungsstärke", 2, $result[7], $uuid."_lux", $catID ,"MiFlora_LUX" );
-				$this->CreateVariable("Bodenleitfähigkeit", 2, $result[8], $uuid."_soilElectricalConductivity", $catID ,"MiFlora_EC");
-				$this->CreateVariable("Zustand Batterie", 2, $result[9]/100, $uuid."_batteryLevel", $catID, "~Intensity.1" );
-
-				
+				$sensorArray[$uuid]["LastMessage"] = $result[1];				
+				$sensorArray[$uuid]["UUID"] = $result[2];
+				$sensorArray[$uuid]["Firmware"] = $result[4];
+				$sensorArray[$uuid]["Temperature"] = $result[5];
+				$sensorArray[$uuid]["SoilMoisture"] = $result[6];
+				$sensorArray[$uuid]["Lux"] = $result[7];
+				$sensorArray[$uuid]["SoilElectricalConductivity"] = $result[8];
+				$sensorArray[$uuid]["BatteryLevel"] = $result[9]/100;
+				$sensorArray[$uuid]["Hubs"][] = $mifloraHub->name;
 			}
-			
 		}
+		
+		// Jetzt erst die Daten schreiben - Sensoren können von mehreren Hubs erwischt werden
+		if (is_array($sensorArray))
+		{
+			foreach($sensorArray as $uuid => $sensor)
+			{
+				$catID = $this->CreateCategory($sensor["UUID"]." (Bitte umbenennen!)", $uuid , $this->InstanceID);
+				$this->CreateVariable("Letzte Meldung", 3, $sensor["LastMessage"], $uuid."_lastMessage", $catID );
+				$this->CreateVariable("UUID", 3, $sensor["UUID"], $uuid."_uuid", $catID );
+				$this->CreateVariable("Firmware", 3, $sensor["Firmware"], $uuid."_firmware", $catID);
+				$this->CreateVariable("Temperatur", 2, $sensor["Temperature"], $uuid."_temperature", $catID ,"~Temperature.Room");
+				$this->CreateVariable("Bodenfeuchtigkeit", 2, $sensor["SoilMoisture"], $uuid."_soilMoisture", $catID ,"~Humidity.F");
+				$this->CreateVariable("Beleuchtungsstärke", 2, $sensor["Lux"], $uuid."_lux", $catID ,"MiFlora_LUX" );
+				$this->CreateVariable("Bodenleitfähigkeit", 2, $sensor["SoilElectricalConductivity"], $uuid."_soilElectricalConductivity", $catID ,"MiFlora_EC");
+				$this->CreateVariable("Zustand Batterie", 2, $sensor["BatteryLevel"], $uuid."_batteryLevel", $catID, "~Intensity.1" );
+				$this->CreateVariable("Hubs", 3, join($sensor["Hubs"],","), $uuid."_hubs", $catID );				
+			}
+		}
+		
 	}
 
     private function CreateCategory( $Name, $Ident = '', $ParentID = 0 )

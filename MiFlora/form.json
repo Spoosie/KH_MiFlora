@@ -31,7 +31,7 @@
 			}
 			]
 		},
-		{ "name": "UpdateIntervall",     "type": "IntervalBox" ,  "caption": "Minuten" },
+		{ "name": "UpdateIntervall",     "type": "IntervalBox" ,  "caption": "Sekunden" },
 		{ "name": "Debug",         "type": "CheckBox",            "caption": "Debug" },
 
 	]	
