@@ -31,8 +31,16 @@
 			}
 			]
 		},
-		{ "name": "UpdateIntervall",     "type": "IntervalBox" ,  "caption": "Sekunden" },
-		{ "name": "Debug",         "type": "CheckBox",            "caption": "Debug" },
+		{ "name": "UpdateIntervall",    "type": "IntervalBox",  "caption": "Sekunden" },
+		{ "name": "DataLoggingEnabled", "type": "CheckBox",     "caption": "Variablen automatisch loggen (nur aktivieren!)" },
+		{ "name": "MinMaxEnabled", 		"type": "CheckBox",     "caption": "MIN/MAX Auswertung" },
+		{ "name": "Debug", 				"type": "Select", 		"caption": "Debug",
+			"options": [
+			{ "label": "Aus", "value": 0 },
+			{ "label": "Informationen", "value": 1 },
+			{ "label": "Warnungen", "value": 2 },
+			{ "label": "Debug", "value": 3 }]
+		}
 
 	]	
 }
