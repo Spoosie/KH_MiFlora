@@ -42,5 +42,19 @@
 			{ "label": "Debug", "value": 3 }]
 		}
 
-	]	
+	],
+	"actions":
+		[
+		{
+			"type": "List",
+			"name": "Sensoren",
+			"caption": "Sensoren",
+			"columns": [
+			],
+			"values": [
+			]
+		}, 
+        { "type": "Button", "label": "Hole Daten", "onClick": "MiFlora_Update($id);" },
+    ]
+	
 }

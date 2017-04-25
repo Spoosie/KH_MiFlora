@@ -2,12 +2,11 @@
 class MiFlora extends IPSModule
 {
     var $moduleName = "MiFlora";
-	var $mifloraHubs;
 	
 	const LOGLEVEL_INFO = 1;
 	const LOGLEVEL_WARNING = 2;
 	const LOGLEVEL_DEBUG = 3;
-	
+		
     public function Create()
     {
         //Never delete this line!
@@ -40,9 +39,16 @@ class MiFlora extends IPSModule
         {
             IPS_CreateVariableProfile("MiFlora_EC", 2);
             IPS_SetVariableProfileText("MiFlora_EC", "", " µs/cm");
-			IPS_SetVariableProfileValues("MiFlora_EC",0, 1000, 100 );
+			IPS_SetVariableProfileValues("MiFlora_EC",0, 1000, 10 );
         }
 		
+        if (!IPS_VariableProfileExists("MiFlora_Humidity"))
+        {
+            IPS_CreateVariableProfile("MiFlora_Humidity", 2);
+			IPS_SetVariableProfileValues("MiFlora_Humidity",0, 100, 1 );
+			IPS_SetVariableProfileAssociation("MiFlora_Humidity", 0, "%d %%", "", -1);
+        }
+
         if (!IPS_VariableProfileExists("MiFlora_Status"))
         {
             IPS_CreateVariableProfile("MiFlora_Status", 1);
@@ -68,11 +74,13 @@ class MiFlora extends IPSModule
         // Timer starten
         // --------------------------------------------------------
         $this->SetTimerInterval("UpdateTimer", $this->ReadPropertyInteger("UpdateIntervall")*1000);
+		$this->updateScriptID = $this->RegisterScript("SetValue","SetValue","<?\n\nSetValue(\$_IPS[\"VARIABLE\"],\$_IPS[\"VALUE\"]);\n\n?>");
 	}
 	
 	public function Update()
     {
 		$sensorArray = NULL;
+		$updateScriptID = @IPS_GetScriptIDByName("SetValue",$this->InstanceID);
 		
         $this->logThis("Updating from miflora hubs",self::LOGLEVEL_INFO);
 
@@ -148,7 +156,8 @@ class MiFlora extends IPSModule
 		// Jetzt erst die Daten schreiben - Sensoren können von mehreren Hubs erwischt werden
 		if (@is_array($sensorArray))
 		{
-			$archiveID = @IPS_GetInstanceIDByName("Archive Handler", 0);
+//			$archiveID = @IPS_GetInstanceIDByName("Archive Handler", 0);
+			$archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 			
 			foreach($sensorArray as $uuid => $sensor)
 			{
@@ -157,37 +166,42 @@ class MiFlora extends IPSModule
 				$this->CreateVariable("UUID", 3, $sensor["UUID"], $uuid."_uuid", $catID );
 				$this->CreateVariable("Firmware", 3, $sensor["Firmware"], $uuid."_firmware", $catID);
 				$logVarIDs[] = $this->CreateVariable("Temperatur", 2, $sensor["Temperature"], $uuid."_temperature", $catID ,"~Temperature.Room");
-				$logVarIDs[] = $this->CreateVariable("Bodenfeuchtigkeit", 2, $sensor["SoilMoisture"], $uuid."_soilMoisture", $catID ,"~Humidity.F");
+				$logVarIDs[] = $this->CreateVariable("Bodenfeuchtigkeit", 2, $sensor["SoilMoisture"], $uuid."_soilMoisture", $catID ,"MiFlora_Humidity");
+// Default Aktion sollte hier noch eingetragen werden			
 				$logVarIDs[] = $this->CreateVariable("Beleuchtungsstärke", 2, $sensor["Lux"], $uuid."_lux", $catID ,"MiFlora_LUX" );
 				$logVarIDs[] = $this->CreateVariable("Bodenleitfähigkeit", 2, $sensor["SoilElectricalConductivity"], $uuid."_soilElectricalConductivity", $catID ,"MiFlora_EC");
 				$logVarIDs[] = $this->CreateVariable("Zustand Batterie", 2, $sensor["BatteryLevel"], $uuid."_batteryLevel", $catID, "~Intensity.1" );
 				$this->CreateVariable("Hubs", 3, join($sensor["Hubs"],", "), $uuid."_hubs", $catID );		
 
-				if ($this->ReadPropertyBoolean("DataLoggingEnabled"))
-				{
-					foreach($logVarIDs as $logVar)
-					{
-						// Nur 1 malig den Zustand aktivieren
-						if (!AC_GetLoggingStatus($archiveID, $logVar))
-						{
-							AC_SetLoggingStatus($archiveID, $logVar, true);
-							IPS_ApplyChanges($archiveID);				
-						}
-					}
-				}
-
 				// Messwerte prüfen
 				if ($this->ReadPropertyBoolean("MinMaxEnabled"))
-				{
+				{					
 					// Einmalig zu erzeugende Variablen - MIN/MAX Feuchte+Leitfähigkeit
 					if (@IPS_GetVariableIDByName("Bodenfeuchtigkeit MAX", $catID) === false)
-						$this->CreateVariable("Bodenfeuchtigkeit MAX", 2, 50, $uuid."_moistMax", $catID ,"~Humidity.F");
+					{
+						$varID = $this->CreateVariable("Bodenfeuchtigkeit MAX", 2, 50, $uuid."_moistMax", $catID ,"MiFlora_Humidity");
+						IPS_SetVariableCustomAction($varID, $updateScriptID);
+						$logVarIDs[] = $varID;
+					}
 					if (@IPS_GetVariableIDByName("Bodenfeuchtigkeit MIN", $catID) === false)
-						$this->CreateVariable("Bodenfeuchtigkeit MIN", 2, 20, $uuid."_moistMin", $catID ,"~Humidity.F");
+					{
+						$varID = $this->CreateVariable("Bodenfeuchtigkeit MIN", 2, 20, $uuid."_moistMin", $catID ,"MiFlora_Humidity");
+						IPS_SetVariableCustomAction($varID, $updateScriptID);
+						$logVarIDs[] = $varID;
+					}
 					if (@IPS_GetVariableIDByName("Bodenleitfähigkeit MAX", $catID) === false)
-						$this->CreateVariable("Bodenleitfähigkeit MAX", 2, 100, $uuid."_ecMax", $catID ,"MiFlora_EC");
+					{
+						$varID = $this->CreateVariable("Bodenleitfähigkeit MAX", 2, 100, $uuid."_ecMax", $catID ,"MiFlora_EC");
+						IPS_SetVariableCustomAction($varID, $updateScriptID);
+						$logVarIDs[] = $varID;
+					}
 					if (@IPS_GetVariableIDByName("Bodenleitfähigkeit MIN", $catID) === false)
-						$this->CreateVariable("Bodenleitfähigkeit MIN", 2, 30, $uuid."_ecMin", $catID ,"MiFlora_EC");
+					{
+						$varID = $this->CreateVariable("Bodenleitfähigkeit MIN", 2, 30, $uuid."_ecMin", $catID ,"MiFlora_EC");
+						IPS_SetVariableCustomAction($varID, $updateScriptID);
+						$logVarIDs[] = $varID;
+					}
+					
 
 					$hum = false;
 					$ec = false;
@@ -219,11 +233,32 @@ class MiFlora extends IPSModule
 					else if ($sensor["SoilElectricalConductivity"] > $maxECValue)
 						$infoValue |= 8;
 
-					$this->logThis("InfoText=".$infoValue,self::LOGLEVEL_DEBUG);
+//					$this->logThis("Pflegehinweis=".$infoValue,self::LOGLEVEL_DEBUG);
 
-					$this->CreateVariable("InfoText", 1, $infoValue, $uuid."_infoText", $catID ,"MiFlora_Status");
+					$this->CreateVariable("Pflegehinweis", 1, $infoValue, $uuid."_infoText", $catID ,"MiFlora_Status");
 
 				}
+				
+				if ($this->ReadPropertyBoolean("DataLoggingEnabled"))
+				{
+					if ($archiveID == 0)
+					{
+						$this->logThis("ArchiveID = 0!",self::LOGLEVEL_WARNING);
+					}
+					else
+					{
+						foreach($logVarIDs as $logVar)
+						{
+							// Nur 1 malig den Zustand aktivieren
+							if (!AC_GetLoggingStatus($archiveID, $logVar))
+							{
+								AC_SetLoggingStatus($archiveID, $logVar, true);
+								IPS_ApplyChanges($archiveID);				
+							}
+						}
+					}
+				}
+				
 			}
 		}
 		
@@ -347,5 +382,19 @@ class MiFlora extends IPSModule
 		}
 
 	}
+	
+	public function GetConfigurationForm()
+	{		
+		
+//		$data = json_decode(file_get_contents(__DIR__ . "/form.json")); 	
+		
+//	$this->logThis(print_r($data),self::LOGLEVEL_INFO);
+		
+//		$data->actions[0]->columns[] = Array("name" => "UUID", "label" => "UUID", "width" => "100px");
+//		$data->actions[0]->values[] = Array("name" => "UUID", "label" => "123");
+							
+//		return json_encode($data);
+	
+	} 
 }
 ?>
