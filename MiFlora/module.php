@@ -542,7 +542,8 @@ class MiFlora extends IPSModule
 		$formSensorList = $this->ReadPropertyString("FormSensorList");
 		$formSensorList = json_decode($formSensorList,true);
 		
-//		$this->logThis("FormSensorList=".print_r($formSensorList,true),self::LOGLEVEL_INFO);
+		if (!is_array($formSensorList))
+			return false;
 		
 		foreach($formSensorList as $entry)
 		{
