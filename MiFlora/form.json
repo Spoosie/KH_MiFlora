@@ -31,30 +31,43 @@
 			}
 			]
 		},
+		{
+			"type": "List",
+			"name": "FormSensorList",
+			"rowCount": 10,
+			"caption": "Sensoren",
+			"delete": true,
+			"columns": [{
+				"label": "UUID",
+				"name": "uuid", 
+				"width": "115px",
+				"save" : true
+				}, {
+				"label": "Name",
+				"name": "name",
+				"width": "190px",
+				"edit": {"type":"ValidationTextBox"}
+				}, {
+				"label": "Bild",
+				"name": "mediaID",
+				"width": "50px",
+				"edit": {"type":"SelectMedia" }
+				}
+			],
+			"values": [
+			]
+		}, 		
 		{ "name": "UpdateIntervall",    "type": "IntervalBox",  "caption": "Sekunden" },
 		{ "name": "DataLoggingEnabled", "type": "CheckBox",     "caption": "Variablen automatisch loggen (nur aktivieren!)" },
 		{ "name": "MinMaxEnabled", 		"type": "CheckBox",     "caption": "MIN/MAX Auswertung" },
+		{ "name": "CreateReadableTextEnabled", "type": "CheckBox",     "caption": "Erzeuge einen vorlesbaren Text (z.B. für Alexa oder Siri)" },
 		{ "name": "Debug", 				"type": "Select", 		"caption": "Debug",
 			"options": [
 			{ "label": "Aus", "value": 0 },
 			{ "label": "Informationen", "value": 1 },
 			{ "label": "Warnungen", "value": 2 },
 			{ "label": "Debug", "value": 3 }]
-		}
-
-	],
-	"actions":
-		[
-		{
-			"type": "List",
-			"name": "Sensoren",
-			"caption": "Sensoren",
-			"columns": [
-			],
-			"values": [
-			]
-		}, 
-        { "type": "Button", "label": "Hole Daten", "onClick": "MiFlora_Update($id);" },
-    ]
-	
+		},
+        { "type": "Button", "label": "Hole aktuelle Daten", "onClick": "MiFlora_Update($id);" }
+	]
 }
