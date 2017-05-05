@@ -242,6 +242,7 @@ class MiFlora extends IPSModule
 					$scriptContent = "IPS_RunScriptEx(".$scriptID.",Array(\"TARGET\" => \$_IPS[\"TARGET\"]));";					
 					IPS_SetEventScript($eventID,$scriptContent);
 					IPS_SetEventActive($eventID, true);
+					IPS_SetHidden($eventID,true);
 				}
 				
 				// ----------------------------
@@ -263,6 +264,7 @@ class MiFlora extends IPSModule
 					$scriptContent = "IPS_RunScriptEx(".$scriptID.",Array(\"TARGET\" => \$_IPS[\"TARGET\"]));";					
 					IPS_SetEventScript($eventID,$scriptContent);
 					IPS_SetEventActive($eventID, true);
+					IPS_SetHidden($eventID,true);
 				}
 
 				// ----------------------------
@@ -306,13 +308,13 @@ class MiFlora extends IPSModule
 
 					if (@IPS_GetVariableIDByName("Temperatur MAX", $catID) === false)
 					{
-						$varID = $this->CreateVariable("Temperatur MAX", 2, 45, $uuid."_tempMax", $catID ,"MiFlora_EC");
+						$varID = $this->CreateVariable("Temperatur MAX", 2, 45, $uuid."_tempMax", $catID ,"MiFlora_Temperature");
 						IPS_SetVariableCustomAction($varID, $updateScriptID);
 						$logVarIDs[] = $varID;
 					}
 					if (@IPS_GetVariableIDByName("Temperatur MIN", $catID) === false)
 					{
-						$varID = $this->CreateVariable("Temperatur MIN", 2, -15, $uuid."_tempMin", $catID ,"MiFlora_EC");
+						$varID = $this->CreateVariable("Temperatur MIN", 2, -15, $uuid."_tempMin", $catID ,"MiFlora_Temperature");
 						IPS_SetVariableCustomAction($varID, $updateScriptID);
 						$logVarIDs[] = $varID;
 					}
