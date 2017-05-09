@@ -8,15 +8,15 @@
 	$luxHintID = IPS_GetVariableIDByName("Beleuchtungsstärke Hinweis",IPS_GetParent($_IPS["TARGET"]));
 
 	$data["dailyAVG"] = $values[0]["Avg"];
-	$data["MIN"] = GetValue($tempMinID);
-	$data["MAX"] = GetValue($tempMaxID);
+	$data["MIN"] = GetValue($luxMinID);
+	$data["MAX"] = GetValue($luxMaxID);
 	
 
 	if ($data["dailyAVG"] < $data["MIN"])
-		SetValue($tempHintID,1);
+		SetValue($luxHintID,1);
 	else if ($data["dailyAVG"] > $data["MAX"])
-		SetValue($tempHintID,2);
+		SetValue($luxHintID,2);
 	else
-		SetValue($tempHintID,0);
+		SetValue($luxHintID,0);
 
 ?>
