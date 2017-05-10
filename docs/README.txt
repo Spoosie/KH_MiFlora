@@ -3,7 +3,7 @@ apt-get update
 cd /home/pi
 git clone https://github.com/open-homeautomation/miflora.git
 cd miflora
-wget https://raw.githubusercontent.com/Spoosie/KH_MiFlora/master/RaspberryPI/GetMiFloras.py
+wget https://raw.githubusercontent.com/Spoosie/KH_MiFlora/master/docs/GetMiFloras.py
 apt-get install python3 libglib2.0-dev libbluetooth-dev python3-pip apache2 libboost-python-dev libboost-thread-dev
 pip3 install gattlib
 
