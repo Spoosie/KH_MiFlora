@@ -104,7 +104,7 @@ class MiFlora extends IPSModule
 		
 		
 		// Verzeichnis für Standortbilder
-		mkdir(IPS_GetKernelDir()."webfront".DIRECTORY_SEPARATOR."user".DIRECTORY_SEPARATOR."MiFlora".DIRECTORY_SEPARATOR);
+		@mkdir(IPS_GetKernelDir()."webfront".DIRECTORY_SEPARATOR."user".DIRECTORY_SEPARATOR."MiFlora".DIRECTORY_SEPARATOR);
 
 		$this->RegisterScript("SetValue","SetValue","<?\n\nSetValue(\$_IPS[\"VARIABLE\"],\$_IPS[\"VALUE\"]);\n\n?>");
 		

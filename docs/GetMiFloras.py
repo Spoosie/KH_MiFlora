@@ -31,7 +31,7 @@ service = DiscoveryService("hci0")
 devices = service.discover(2)
 
 for address, name in devices.items():
-    if name == "Flower care":
+    if name == "Flower care" or name == "Flower mate":
         getPlant(address)
 
 print("DONE!")
