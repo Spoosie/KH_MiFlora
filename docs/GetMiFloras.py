@@ -22,7 +22,7 @@ def getPlant(macAdr):
     cond = poller.parameter_value(MI_CONDUCTIVITY)
     battery = poller.battery_level()
 
-    print(timeStr + " Mac="+macAdr+" Name="+name+" Fw="+fw+" Temp={:.2f} Moist={:d} Light={:d} Cond={:d} Bat={:d}".forma$
+    print(timeStr + " Mac="+macAdr+" Name="+name+" Fw="+fw+" Temp={:.2f} Moist={:d} Light={:d} Cond={:d} Bat={:d}".format(temp, moist, light, cond, battery))
 
     return;
 
