@@ -5,9 +5,10 @@ import datetime
 from gattlib import DiscoveryService
 from miflora.miflora_poller import MiFloraPoller, \
     MI_CONDUCTIVITY, MI_MOISTURE, MI_LIGHT, MI_TEMPERATURE, MI_BATTERY
+from miflora.backends.gatttool import GatttoolBackend
 
 def getPlant(macAdr):
-    poller = MiFloraPoller(macAdr)
+    poller = MiFloraPoller(macAdr, GatttoolBackend)
 
     now = time.time()
     dtnow=datetime.datetime.fromtimestamp(now)
@@ -35,3 +36,4 @@ for address, name in devices.items():
         getPlant(address)
 
 print("DONE!")
+
